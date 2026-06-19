@@ -86,6 +86,90 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  header {
+    padding: 16px;
+  }
+  
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  header p {
+    font-size: 0.9rem;
+  }
+  
+  main {
+    padding: 12px;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .card h2 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  
+  button {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+  
+  input[type="text"], input[list] {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  
+  label {
+    font-size: 0.9rem;
+  }
+  
+  .form-row {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  canvas {
+    height: 120px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.2rem;
+  }
+  
+  main {
+    padding: 8px;
+  }
+  
+  .card {
+    padding: 10px;
+  }
+  
+  .card h2 {
+    font-size: 0.95rem;
+  }
+  
+  .card p {
+    font-size: 0.85rem;
+  }
+  
+  button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}
+
 .game-result {
   margin-top: 14px;
   padding: 16px;

@@ -80,6 +80,26 @@
     <div id="pair-qr" style="margin-top:12px"></div>
     <div id="paired-devices" style="margin-top:12px">No paired devices yet.</div>
   </section>
+  <section class="card" id="health-card">
+    <h2>System Health</h2>
+    <div style="text-align:center;margin:20px 0">
+      <div id="health-score" style="font-size:48px;font-weight:bold;color:#60a5fa">--</div>
+      <div id="health-status" style="font-size:18px;color:#cbd5e1">Loading...</div>
+    </div>
+    <div id="health-details"></div>
+  </section>
+  <section class="card" id="recommendations-card">
+    <h2>Recommended Games</h2>
+    <p>Games your PC can run right now:</p>
+    <div id="recommendations-list">Loading recommendations...</div>
+    <button id="refresh-recommendations-btn" style="margin-top:12px">Refresh Recommendations</button>
+  </section>
+  <section class="card" id="game-history-card">
+    <h2>Game Check History</h2>
+    <div id="game-history-list" style="max-height:200px;overflow-y:auto">No history yet.</div>
+    <button id="export-json-btn" style="margin-top:12px;margin-right:8px">Export Stats (JSON)</button>
+    <button id="export-csv-btn" style="margin-top:12px">Export Stats (CSV)</button>
+  </section>
   <footer>
     <p>Auto-refresh every 3 seconds. Runs locally on your PC.</p>
   </footer>
@@ -366,6 +386,121 @@
         createPairBtn.textContent = 'Create Pairing QR';
       }
     });
+
+    // Health score + Recommendations + Game history + Export
+    const healthCard = document.getElementById('health-card');
+    const healthScore = document.getElementById('health-score');
+    const healthStatus = document.getElementById('health-status');
+    const healthDetails = document.getElementById('health-details');
+    const recommendationsEl = document.getElementById('recommendations-list');
+    const gameHistoryEl = document.getElementById('game-history-list');
+    const gameHistory = JSON.parse(localStorage.getItem('gameHistory') || '[]');
+
+    async function loadHealth() {
+      try {
+        const resp = await fetch('/api/health');
+        const data = await resp.json();
+        healthScore.textContent = data.health;
+        healthStatus.textContent = data.status;
+        healthScore.style.color = data.health >= 75 ? '#22c55e' : data.health >= 50 ? '#eab308' : '#ef4444';
+        healthDetails.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+            <div><strong>RAM:</strong> ${data.ramPercent}% used</div>
+            <div><strong>Storage:</strong> ${data.storagePercent}% used</div>
+            <div><strong>CPU Load:</strong> ${data.cpuLoad}%</div>
+            <div><strong>CPU Temp:</strong> ${data.temperature}°C</div>
+          </div>
+        `;
+      } catch (e) {
+        healthScore.textContent = '?';
+        healthStatus.textContent = 'Error loading health';
+      }
+    }
+
+    async function loadRecommendations() {
+      try {
+        const resp = await fetch('/api/recommendations');
+        const data = await resp.json();
+        if (data.recommendations.length === 0) {
+          recommendationsEl.innerHTML = '<div>No games match your current specs. Upgrade RAM/storage!</div>';
+          return;
+        }
+        recommendationsEl.innerHTML = data.recommendations.map(g => 
+          `<div style="padding:8px;background:rgba(34,197,94,0.1);border-radius:8px;margin-bottom:8px">
+             <strong>${g.name}</strong><br/>
+             <small>RAM: ${(g.ram/(1024**3)).toFixed(1)} GB | Storage: ${(g.storage/(1024**3)).toFixed(1)} GB</small>
+           </div>`
+        ).join('');
+      } catch (e) {
+        recommendationsEl.innerHTML = '<div class="error">Unable to load recommendations</div>';
+      }
+    }
+
+    function updateGameHistory(gameName, canInstall) {
+      const entry = { game: gameName, canInstall, date: new Date().toLocaleString() };
+      gameHistory.unshift(entry);
+      if (gameHistory.length > 20) gameHistory.pop();
+      localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
+      renderGameHistory();
+    }
+
+    function renderGameHistory() {
+      if (gameHistory.length === 0) {
+        gameHistoryEl.innerHTML = 'No history yet.';
+        return;
+      }
+      gameHistoryEl.innerHTML = gameHistory.map(h => 
+        `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:0.9em">
+           <strong>${h.game}</strong> — <span style="color:${h.canInstall ? '#22c55e' : '#ef4444'}">${h.canInstall ? '✓ Can install' : '✗ Cannot install'}</span>
+           <br><small>${h.date}</small>
+         </div>`
+      ).join('');
+    }
+
+    document.getElementById('refresh-recommendations-btn').addEventListener('click', loadRecommendations);
+    document.getElementById('export-json-btn').addEventListener('click', async () => {
+      try {
+        const resp = await fetch('/api/export?format=json');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'pc-stats.json';
+        a.click();
+      } catch (e) {
+        alert('Export failed');
+      }
+    });
+    document.getElementById('export-csv-btn').addEventListener('click', async () => {
+      try {
+        const resp = await fetch('/api/export?format=csv');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'pc-stats.csv';
+        a.click();
+      } catch (e) {
+        alert('Export failed');
+      }
+    });
+
+    // Hook game history into game checker
+    const origCheckGame = checkGameInstall;
+    checkGameInstall = async function() {
+      const gameName = gameNameInput.value.trim();
+      await origCheckGame.call(this);
+      if (gameName) {
+        const result = document.querySelector('.game-result');
+        const canInstall = result.textContent.includes('Yes');
+        updateGameHistory(gameName, canInstall);
+      }
+    };
+
+    loadHealth();
+    loadRecommendations();
+    renderGameHistory();
+    setInterval(loadHealth, 10000);
   </script>
 </body>
 </html>

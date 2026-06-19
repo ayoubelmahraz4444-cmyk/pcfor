@@ -24,7 +24,51 @@ const KNOWN_GAME_REQUIREMENTS = [
   { key: 'valorant', name: 'Valorant', ram: 4 * 1024 * 1024 * 1024, storage: 15 * 1024 * 1024 * 1024 },
   { key: 'gta v', name: 'GTA V', ram: 8 * 1024 * 1024 * 1024, storage: 72 * 1024 * 1024 * 1024, aliases: ['gtav', 'gta'] },
   { key: 'elden ring', name: 'Elden Ring', ram: 12 * 1024 * 1024 * 1024, storage: 60 * 1024 * 1024 * 1024 },
-  { key: 'call of duty modern warfare', name: 'Call of Duty Modern Warfare', ram: 12 * 1024 * 1024 * 1024, storage: 90 * 1024 * 1024 * 1024, aliases: ['cod modern warfare'] }
+  { key: 'call of duty modern warfare', name: 'Call of Duty Modern Warfare', ram: 12 * 1024 * 1024 * 1024, storage: 90 * 1024 * 1024 * 1024, aliases: ['cod modern warfare'] },
+  { key: 'baldurs gate 3', name: 'Baldur\'s Gate 3', ram: 12 * 1024 * 1024 * 1024, storage: 150 * 1024 * 1024 * 1024 },
+  { key: 'starfield', name: 'Starfield', ram: 16 * 1024 * 1024 * 1024, storage: 120 * 1024 * 1024 * 1024 },
+  { key: 'warhammer 40k darktide', name: 'Warhammer 40K: Darktide', ram: 8 * 1024 * 1024 * 1024, storage: 85 * 1024 * 1024 * 1024 },
+  { key: 'palworld', name: 'Palworld', ram: 32 * 1024 * 1024 * 1024, storage: 130 * 1024 * 1024 * 1024 },
+  { key: 'dragon age inquisition', name: 'Dragon Age: Inquisition', ram: 8 * 1024 * 1024 * 1024, storage: 100 * 1024 * 1024 * 1024 },
+  { key: 'the witcher 3', name: 'The Witcher 3', ram: 8 * 1024 * 1024 * 1024, storage: 136 * 1024 * 1024 * 1024 },
+  { key: 'resident evil 4', name: 'Resident Evil 4', ram: 8 * 1024 * 1024 * 1024, storage: 150 * 1024 * 1024 * 1024 },
+  { key: 'doom eternal', name: 'DOOM Eternal', ram: 8 * 1024 * 1024 * 1024, storage: 100 * 1024 * 1024 * 1024 },
+  { key: 'fallout 4', name: 'Fallout 4', ram: 8 * 1024 * 1024 * 1024, storage: 30 * 1024 * 1024 * 1024 },
+  { key: 'skyrim', name: 'The Elder Scrolls V: Skyrim', ram: 8 * 1024 * 1024 * 1024, storage: 20 * 1024 * 1024 * 1024 },
+  { key: 'apex legends', name: 'Apex Legends', ram: 8 * 1024 * 1024 * 1024, storage: 72 * 1024 * 1024 * 1024 },
+  { key: 'valorant', name: 'Valorant', ram: 4 * 1024 * 1024 * 1024, storage: 20 * 1024 * 1024 * 1024 },
+  { key: 'league of legends', name: 'League of Legends', ram: 4 * 1024 * 1024 * 1024, storage: 15 * 1024 * 1024 * 1024 },
+  { key: 'counter strike 2', name: 'Counter-Strike 2', ram: 4 * 1024 * 1024 * 1024, storage: 35 * 1024 * 1024 * 1024 },
+  { key: 'overwatch 2', name: 'Overwatch 2', ram: 6 * 1024 * 1024 * 1024, storage: 40 * 1024 * 1024 * 1024 },
+  { key: 'dota 2', name: 'Dota 2', ram: 4 * 1024 * 1024 * 1024, storage: 30 * 1024 * 1024 * 1024 },
+  { key: 'team fortress 2', name: 'Team Fortress 2', ram: 2 * 1024 * 1024 * 1024, storage: 22 * 1024 * 1024 * 1024 },
+  { key: 'terraria', name: 'Terraria', ram: 2 * 1024 * 1024 * 1024, storage: 3 * 1024 * 1024 * 1024 },
+  { key: 'stardew valley', name: 'Stardew Valley', ram: 2 * 1024 * 1024 * 1024, storage: 166 * 1024 * 1024 },
+  { key: 'hollow knight', name: 'Hollow Knight', ram: 2 * 1024 * 1024 * 1024, storage: 3 * 1024 * 1024 * 1024 },
+  { key: 'dark souls 3', name: 'Dark Souls III', ram: 4 * 1024 * 1024 * 1024, storage: 25 * 1024 * 1024 * 1024 },
+  { key: 'sekiro shadows die twice', name: 'Sekiro: Shadows Die Twice', ram: 4 * 1024 * 1024 * 1024, storage: 26 * 1024 * 1024 * 1024 },
+  { key: 'bloodborne', name: 'Bloodborne', ram: 6 * 1024 * 1024 * 1024, storage: 60 * 1024 * 1024 * 1024 },
+  { key: 'red dead redemption 2', name: 'Red Dead Redemption 2', ram: 12 * 1024 * 1024 * 1024, storage: 150 * 1024 * 1024 * 1024 },
+  { key: 'assassins creed origins', name: 'Assassin\'s Creed Origins', ram: 8 * 1024 * 1024 * 1024, storage: 75 * 1024 * 1024 * 1024 },
+  { key: 'horizon zero dawn', name: 'Horizon Zero Dawn', ram: 12 * 1024 * 1024 * 1024, storage: 100 * 1024 * 1024 * 1024 },
+  { key: 'god of war', name: 'God of War', ram: 8 * 1024 * 1024 * 1024, storage: 130 * 1024 * 1024 * 1024 },
+  { key: 'the last of us', name: 'The Last of Us Part I', ram: 12 * 1024 * 1024 * 1024, storage: 140 * 1024 * 1024 * 1024 },
+  { key: 'ghost of tsushima', name: 'Ghost of Tsushima', ram: 8 * 1024 * 1024 * 1024, storage: 66 * 1024 * 1024 * 1024 },
+  { key: 'uncharted 4', name: 'Uncharted 4: A Thief\'s End', ram: 8 * 1024 * 1024 * 1024, storage: 86 * 1024 * 1024 * 1024 },
+  { key: 'hades', name: 'Hades', ram: 4 * 1024 * 1024 * 1024, storage: 17 * 1024 * 1024 * 1024 },
+  { key: 'celeste', name: 'Celeste', ram: 2 * 1024 * 1024 * 1024, storage: 500 * 1024 * 1024 },
+  { key: 'genshin impact', name: 'Genshin Impact', ram: 4 * 1024 * 1024 * 1024, storage: 30 * 1024 * 1024 * 1024 },
+  { key: 'final fantasy xiv', name: 'Final Fantasy XIV', ram: 6 * 1024 * 1024 * 1024, storage: 100 * 1024 * 1024 * 1024 },
+  { key: 'monster hunter world', name: 'Monster Hunter: World', ram: 8 * 1024 * 1024 * 1024, storage: 148 * 1024 * 1024 * 1024 },
+  { key: 'no mans sky', name: 'No Man\'s Sky', ram: 8 * 1024 * 1024 * 1024, storage: 65 * 1024 * 1024 * 1024 },
+  { key: 'kerbal space program', name: 'Kerbal Space Program', ram: 4 * 1024 * 1024 * 1024, storage: 4 * 1024 * 1024 * 1024 },
+  { key: 'rimworld', name: 'RimWorld', ram: 4 * 1024 * 1024 * 1024, storage: 2 * 1024 * 1024 * 1024 },
+  { key: 'the sims 4', name: 'The Sims 4', ram: 4 * 1024 * 1024 * 1024, storage: 50 * 1024 * 1024 * 1024 },
+  { key: 'civilization vi', name: 'Civilization VI', ram: 4 * 1024 * 1024 * 1024, storage: 15 * 1024 * 1024 * 1024 },
+  { key: 'strategy space invaders', name: 'Starcraft II', ram: 4 * 1024 * 1024 * 1024, storage: 35 * 1024 * 1024 * 1024 },
+  { key: 'total war warhammer', name: 'Total War: Warhammer III', ram: 12 * 1024 * 1024 * 1024, storage: 190 * 1024 * 1024 * 1024 },
+  { key: 'pathfinder wrath of the righteous', name: 'Pathfinder: Wrath of the Righteous', ram: 8 * 1024 * 1024 * 1024, storage: 165 * 1024 * 1024 * 1024 },
+  { key: 'divinity original sin 2', name: 'Divinity: Original Sin 2', ram: 8 * 1024 * 1024 * 1024, storage: 150 * 1024 * 1024 * 1024 }
 ];
 
 function findGameRequirement(name) {
@@ -160,6 +204,85 @@ app.get('/pair/:token', (req, res) => {
     return res.status(404).send('Pairing token not found or expired.');
   }
   res.sendFile(path.join(__dirname, 'public', 'pair.html'));
+});
+
+// Health score API
+app.get('/api/health', async (req, res) => {
+  try {
+    const [mem, fileSys, cpuLoad, cpuTemp] = await Promise.all([
+      si.mem(),
+      si.fsSize(),
+      si.currentLoad(),
+      si.cpuTemperature()
+    ]);
+    const availableRam = mem.available || mem.free || 0;
+    const totalRam = mem.total || 1;
+    const ramPercent = 100 - (availableRam / totalRam) * 100;
+    
+    let totalFree = 0, totalSize = 0;
+    fileSys.forEach(d => {
+      totalSize += d.size || 0;
+      totalFree += (d.available != null ? d.available : ((d.size || 0) - (d.used || 0)));
+    });
+    const storagePercent = totalSize > 0 ? 100 - (totalFree / totalSize) * 100 : 0;
+    const temp = cpuTemp.main || 0;
+    const cpuL = Number(cpuLoad.currentload ?? cpuLoad.currentLoad ?? 0) || 0;
+    
+    const ramScore = Math.max(0, 100 - ramPercent);
+    const storageScore = Math.max(0, 100 - storagePercent);
+    const tempScore = Math.max(0, 100 - (temp / 100) * 100);
+    const cpuScore = Math.max(0, 100 - cpuL);
+    const health = Math.round((ramScore + storageScore + tempScore + cpuScore) / 4);
+    
+    res.json({
+      health,
+      ramPercent: ramPercent.toFixed(1),
+      storagePercent: storagePercent.toFixed(1),
+      temperature: temp,
+      cpuLoad: cpuL.toFixed(1),
+      status: health >= 75 ? 'Excellent' : health >= 50 ? 'Good' : health >= 25 ? 'Fair' : 'Poor'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to compute health score' });
+  }
+});
+
+// Recommendations API
+app.get('/api/recommendations', async (req, res) => {
+  try {
+    const [mem, fileSys] = await Promise.all([si.mem(), si.fsSize()]);
+    const availableRam = mem.available || mem.free || 0;
+    const availableStorage = getAvailableStorage(fileSys);
+    
+    const canInstall = KNOWN_GAME_REQUIREMENTS.filter(game => 
+      availableRam >= game.ram && availableStorage >= game.storage
+    ).sort((a, b) => b.storage - a.storage).slice(0, 10);
+    
+    res.json({ recommendations: canInstall.map(g => ({ name: g.name, ram: g.ram, storage: g.storage })) });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to generate recommendations' });
+  }
+});
+
+// Export stats API
+app.get('/api/export', async (req, res) => {
+  try {
+    const stats = await getSystemStats();
+    const format = req.query.format || 'json';
+    
+    if (format === 'csv') {
+      const csv = `PC Monitor Export - ${new Date().toISOString()}\nCPU Manufacturer,${stats.cpu.manufacturer}\nCPU Brand,${stats.cpu.brand}\nCPU Speed,${stats.cpu.speed} GHz\nCPU Cores,${stats.cpu.cores}\nCPU Load,${stats.cpu.load}%\nCPU Temp,${stats.cpu.temperature}°C\nMemory Total,${(stats.memory.total / (1024**3)).toFixed(2)} GB\nMemory Used,${(stats.memory.used / (1024**3)).toFixed(2)} GB\nMemory Available,${(stats.memory.available / (1024**3)).toFixed(2)} GB\nOS,${stats.os.distro} ${stats.os.release}\nHostname,${stats.os.hostname}\nArch,${stats.os.arch}`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=pc-stats.csv');
+      res.send(csv);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename=pc-stats.json');
+      res.json(stats);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to export stats' });
+  }
 });
 
 app.get('/api/check-game', async (req, res) => {
