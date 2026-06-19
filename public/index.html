@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PC Monitor Dashboard</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
@@ -43,12 +44,24 @@
     </section>
   </main>
 
+    <section class="grid">
+      <div class="card">
+        <h2>CPU Usage</h2>
+        <canvas id="cpuChart" width="400" height="160"></canvas>
+      </div>
+      <div class="card">
+        <h2>Memory Usage</h2>
+        <canvas id="memChart" width="400" height="160"></canvas>
+      </div>
+    </section>
   <footer>
     <p>Auto-refresh every 3 seconds. Runs locally on your PC.</p>
   </footer>
 
   <script>
     const statsElement = document.getElementById('stats');
+    const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+    const memCtx = document.getElementById('memChart').getContext('2d');
 
     function formatBytes(value) {
       const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -121,6 +134,8 @@
       statsElement.appendChild(renderCard('GPU', gpuControllers || '<div>No GPU info found.</div>'));
       statsElement.appendChild(renderCard('Disks', disks));
       statsElement.appendChild(renderCard('Network', networks));
+      // Update charts
+      updateCharts(data);
     }
 
     const gameNameInput = document.getElementById('game-name');
@@ -175,6 +190,54 @@
     }
 
     checkGameButton.addEventListener('click', checkGameInstall);
+
+    // Charts setup
+    const cpuChart = new Chart(cpuCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'CPU Load %',
+          data: [],
+          borderColor: '#60a5fa',
+          backgroundColor: 'rgba(96,165,250,0.15)',
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const memChart = new Chart(memCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Memory Used (GB)',
+          data: [],
+          borderColor: '#34d399',
+          backgroundColor: 'rgba(52,211,153,0.12)',
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    function updateCharts(data) {
+      const timeLabel = new Date().toLocaleTimeString();
+      // CPU
+      const cpuVal = Number(data.cpu.load) || 0;
+      cpuChart.data.labels.push(timeLabel);
+      cpuChart.data.datasets[0].data.push(cpuVal);
+      if (cpuChart.data.labels.length > 20) { cpuChart.data.labels.shift(); cpuChart.data.datasets[0].data.shift(); }
+      cpuChart.update();
+
+      // Memory used (in GB)
+      const memUsedGB = (data.memory.used || 0) / (1024 * 1024 * 1024);
+      memChart.data.labels.push(timeLabel);
+      memChart.data.datasets[0].data.push(Number(memUsedGB.toFixed(2)));
+      if (memChart.data.labels.length > 20) { memChart.data.labels.shift(); memChart.data.datasets[0].data.shift(); }
+      memChart.update();
+    }
 
     async function loadStats() {
       try {

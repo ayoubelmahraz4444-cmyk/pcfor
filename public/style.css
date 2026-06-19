@@ -94,6 +94,11 @@ button:disabled {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+canvas {
+  width: 100% !important;
+  height: 160px !important;
+}
+
 .success {
   color: #22c55e;
   font-weight: 700;
