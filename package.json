@@ -1,0 +1,13 @@
+{
+  "name": "pc-monitor-local",
+  "version": "1.0.0",
+  "description": "Local PC monitoring dashboard for CPU, GPU, memory, disk, and network.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "systeminformation": "^5.17.0"
+  }
+}

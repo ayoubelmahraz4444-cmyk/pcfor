@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PC Monitor Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>PC Monitor</h1>
+    <p>Local dashboard for CPU, GPU, memory, disk, and network.</p>
+  </header>
+
+  <main>
+    <section class="grid" id="stats"></section>
+    <section class="card" id="game-check">
+      <h2>Game install check</h2>
+      <p>Type any game name. If the game is not recognized, enter its required RAM and storage in GB.</p>
+      <div class="form-row">
+        <label for="game-name">Game name</label>
+        <input list="game-suggestions" id="game-name" placeholder="E.g. Cyberpunk 2077 or any game name" />
+        <datalist id="game-suggestions">
+          <option value="Cyberpunk 2077"></option>
+          <option value="Fortnite"></option>
+          <option value="Minecraft"></option>
+          <option value="Valorant"></option>
+          <option value="GTA V"></option>
+          <option value="Elden Ring"></option>
+          <option value="Call of Duty Modern Warfare"></option>
+        </datalist>
+      </div>
+      <div class="form-row">
+        <label for="required-ram">Required RAM (GB)</label>
+        <input type="text" id="required-ram" placeholder="Use only if game is not in the list" />
+      </div>
+      <div class="form-row">
+        <label for="required-storage">Required Storage (GB)</label>
+        <input type="text" id="required-storage" placeholder="Use only if game is not in the list" />
+      </div>
+      <button id="check-game-btn">Check Install</button>
+      <div id="game-result" class="game-result">Choose a game and click check.</div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Auto-refresh every 3 seconds. Runs locally on your PC.</p>
+  </footer>
+
+  <script>
+    const statsElement = document.getElementById('stats');
+
+    function formatBytes(value) {
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let index = 0;
+      let number = value;
+      while (number >= 1024 && index < units.length - 1) {
+        number /= 1024;
+        index += 1;
+      }
+      return `${number.toFixed(1)} ${units[index]}`;
+    }
+
+    function renderCard(title, content) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h2>${title}</h2><div>${content}</div>`;
+      return card;
+    }
+
+    function renderStats(data) {
+      statsElement.innerHTML = '';
+
+      const cpu = `
+        <div>Brand: ${data.cpu.manufacturer} ${data.cpu.brand}</div>
+        <div>Speed: ${data.cpu.speed} GHz</div>
+        <div>Cores: ${data.cpu.cores} (Physical ${data.cpu.physicalCores})</div>
+        <div>Load: ${data.cpu.load}%</div>
+        <div>Temp: ${data.cpu.temperature}°C</div>
+      `;
+
+      const memory = `
+        <div>Total: ${formatBytes(data.memory.total)}</div>
+        <div>Used: ${formatBytes(data.memory.used)}</div>
+        <div>Free: ${formatBytes(data.memory.free)}</div>
+        <div>Available: ${formatBytes(data.memory.available)}</div>
+      `;
+
+      const os = `
+        <div>${data.os.distro} ${data.os.release} (${data.os.platform})</div>
+        <div>Hostname: ${data.os.hostname}</div>
+        <div>Arch: ${data.os.arch}</div>
+        <div>Uptime: ${Math.floor(data.os.uptime / 3600)}h ${Math.floor((data.os.uptime % 3600) / 60)}m</div>
+      `;
+
+      const gpuControllers = data.graphics.controllers.map(g => `
+        <div><strong>${g.vendor} ${g.model}</strong></div>
+        <div>Memory: ${g.vram} MB</div>
+        <div>GPU Utilization: ${g.utilizationGpu ?? 'N/A'}%</div>
+        <div>Memory Utilization: ${g.utilizationMemory ?? 'N/A'}%</div>
+      `).join('<hr />');
+
+      const disks = data.disks.map(d => `
+        <div><strong>${d.fs} (${d.mount})</strong></div>
+        <div>Type: ${d.type}</div>
+        <div>Used: ${formatBytes(d.used)} / ${formatBytes(d.size)} (${d.use}%)</div>
+      `).join('<hr />');
+
+      const networks = data.network.map(n => `
+        <div><strong>${n.iface}</strong></div>
+        <div>State: ${n.operstate}</div>
+        <div>RX: ${formatBytes(n.rx_bytes)}</div>
+        <div>TX: ${formatBytes(n.tx_bytes)}</div>
+        <div>Rx/sec: ${formatBytes(n.rx_sec)}/s</div>
+        <div>Tx/sec: ${formatBytes(n.tx_sec)}/s</div>
+      `).join('<hr />');
+
+      statsElement.appendChild(renderCard('CPU', cpu));
+      statsElement.appendChild(renderCard('Memory', memory));
+      statsElement.appendChild(renderCard('Operating System', os));
+      statsElement.appendChild(renderCard('GPU', gpuControllers || '<div>No GPU info found.</div>'));
+      statsElement.appendChild(renderCard('Disks', disks));
+      statsElement.appendChild(renderCard('Network', networks));
+    }
+
+    const gameNameInput = document.getElementById('game-name');
+    const gameResult = document.getElementById('game-result');
+    const checkGameButton = document.getElementById('check-game-btn');
+
+    async function checkGameInstall() {
+      const gameName = gameNameInput.value.trim();
+      const ramValue = document.getElementById('required-ram').value.trim();
+      const storageValue = document.getElementById('required-storage').value.trim();
+
+      if (!gameName) {
+        gameResult.innerHTML = '<div class="error">Please enter a game name.</div>';
+        return;
+      }
+
+      if (!ramValue && !storageValue) {
+        gameResult.innerHTML = '<div class="error">If the game is not in the list, please enter required RAM and storage in GB.</div>';
+        // still allow if game is known in the list
+      }
+
+      const params = new URLSearchParams({ name: gameName });
+      if (ramValue) params.set('ramGB', ramValue);
+      if (storageValue) params.set('storageGB', storageValue);
+
+      gameResult.textContent = 'Checking...';
+      checkGameButton.disabled = true;
+      try {
+        const response = await fetch(`/api/check-game?${params.toString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          const errorText = data.error || 'Game not found.';
+          const suggestions = data.availableGames ? `<div>Try: ${data.availableGames.join(', ')}</div>` : '';
+          gameResult.innerHTML = `<div class="error">${errorText}</div>${suggestions}`;
+          return;
+        }
+
+        const canInstallClass = data.canInstall ? 'success' : 'error';
+        gameResult.innerHTML = `
+          <div class="${canInstallClass}">${data.message}</div>
+          <div>Required RAM: ${formatBytes(data.requiredRam)}</div>
+          <div>Required storage: ${formatBytes(data.requiredStorage)}</div>
+          <div>Available RAM: ${formatBytes(data.availableRam)}</div>
+          <div>Available storage: ${formatBytes(data.availableStorage)}</div>
+        `;
+      } catch (error) {
+        gameResult.innerHTML = '<div class="error">Unable to check game requirements. Try again later.</div>';
+      } finally {
+        checkGameButton.disabled = false;
+      }
+    }
+
+    checkGameButton.addEventListener('click', checkGameInstall);
+
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        renderStats(data);
+      } catch (error) {
+        statsElement.innerHTML = '<div class="error">Unable to load stats. Refresh the page or restart the app.</div>';
+      }
+    }
+
+    loadStats();
+    setInterval(loadStats, 3000);
+  </script>
+</body>
+</html>
