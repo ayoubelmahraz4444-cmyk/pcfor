@@ -1,0 +1,29 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Login to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "RAILWAY_TOKEN secret is not set. Add it in repository settings."; exit 1;
+          fi
+          railway login --token "$RAILWAY_TOKEN"
+
+      - name: Deploy to Railway
+        run: |
+          # Non-interactive deploy of the project linked to the repository
+          railway up --yes
