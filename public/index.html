@@ -6,6 +6,8 @@
   <title>PC Monitor Dashboard</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <header>
@@ -69,6 +71,15 @@
       </div>
       <div id="alerts-list" class="alerts-panel">No active alerts.</div>
     </section>
+  <section class="card" id="pairing-card">
+    <h2>Pair a device (Phone)</h2>
+    <p>Scan the QR or open the link on the device to pair it with this dashboard.</p>
+    <div class="form-row">
+      <button id="create-pair-btn">Create Pairing QR</button>
+    </div>
+    <div id="pair-qr" style="margin-top:12px"></div>
+    <div id="paired-devices" style="margin-top:12px">No paired devices yet.</div>
+  </section>
   <footer>
     <p>Auto-refresh every 3 seconds. Runs locally on your PC.</p>
   </footer>
@@ -324,6 +335,37 @@
 
     loadStats();
     setInterval(loadStats, 3000);
+
+    // Pairing UI + socket
+    const createPairBtn = document.getElementById('create-pair-btn');
+    const pairQr = document.getElementById('pair-qr');
+    const pairedDevicesEl = document.getElementById('paired-devices');
+    const socket = io();
+
+    createPairBtn.addEventListener('click', async () => {
+      createPairBtn.disabled = true;
+      createPairBtn.textContent = 'Creating...';
+      try {
+        const resp = await fetch('/api/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await resp.json();
+        const url = data.url;
+        pairQr.innerHTML = '';
+        new QRCode(pairQr, { text: url, width: 200, height: 200 });
+        // join socket room to listen for pairing
+        socket.emit('watch-token', data.token);
+        socket.off('paired');
+        socket.on('paired', info => {
+          if (info && info.token === data.token) {
+            pairedDevicesEl.innerHTML = `<div><strong>${info.device.name || 'Unnamed device'}</strong> (${info.device.platform}) — ${info.device.userAgent}</div>`;
+          }
+        });
+      } catch (e) {
+        pairQr.textContent = 'Failed to create pairing token.';
+      } finally {
+        createPairBtn.disabled = false;
+        createPairBtn.textContent = 'Create Pairing QR';
+      }
+    });
   </script>
 </body>
 </html>

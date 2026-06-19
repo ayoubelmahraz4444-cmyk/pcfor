@@ -1,11 +1,21 @@
 const express = require('express');
 const path = require('path');
 const si = require('systeminformation');
+const http = require('http');
+const { Server } = require('socket.io');
+const crypto = require('crypto');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+// In-memory pairing tokens and paired devices
+const pairingTokens = new Map(); // token -> { createdAt }
+const pairedDevices = new Map(); // token -> deviceInfo
 
 const KNOWN_GAME_REQUIREMENTS = [
   { key: 'cyberpunk 2077', name: 'Cyberpunk 2077', ram: 12 * 1024 * 1024 * 1024, storage: 70 * 1024 * 1024 * 1024, aliases: ['cyberpunk'] },
@@ -131,6 +141,27 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
+// Pairing API - create a short token and return a pairing URL
+app.post('/api/pair', express.json(), (req, res) => {
+  try {
+    const token = crypto.randomBytes(3).toString('hex'); // 6 hex chars
+    pairingTokens.set(token, { createdAt: Date.now() });
+    const url = `${req.protocol}://${req.get('host')}/pair/${token}`;
+    res.json({ token, url });
+  } catch (err) {
+    res.status(500).json({ error: 'Unable to create pairing token' });
+  }
+});
+
+// Serve pairing page for devices
+app.get('/pair/:token', (req, res) => {
+  const token = req.params.token;
+  if (!pairingTokens.has(token)) {
+    return res.status(404).send('Pairing token not found or expired.');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'pair.html'));
+});
+
 app.get('/api/check-game', async (req, res) => {
   try {
     const gameName = String(req.query.name || '').trim();
@@ -174,6 +205,22 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(port, () => {
+// Socket.io connection handling
+io.on('connection', socket => {
+  socket.on('watch-token', token => {
+    if (!token) return;
+    socket.join(token);
+  });
+
+  socket.on('complete-pair', data => {
+    const { token, device } = data || {};
+    if (!token || !pairingTokens.has(token)) return;
+    pairedDevices.set(token, { device, pairedAt: Date.now() });
+    // notify watchers of this token
+    io.to(token).emit('paired', { token, device });
+  });
+});
+
+server.listen(port, () => {
   console.log(`PC Monitor dashboard running at http://localhost:${port}`);
 });

@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pair Device</title>
+  <style>
+    body{font-family:Arial;background:#111827;color:#e5e7eb;padding:24px}
+    .card{background:rgba(255,255,255,0.03);padding:16px;border-radius:12px}
+    .info{margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Pairing...</h2>
+    <p id="status">Connecting...</p>
+    <div class="info" id="device-info"></div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const status = document.getElementById('status');
+    const deviceInfoEl = document.getElementById('device-info');
+    const token = location.pathname.split('/').pop();
+
+    function getDeviceInfo(){
+      return {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        name: (prompt('Enter a name for this device (optional):') || '').slice(0,64)
+      };
+    }
+
+    socket.on('connect', () => {
+      status.textContent = 'Connected. Sending pairing request...';
+      const device = getDeviceInfo();
+      socket.emit('complete-pair', { token, device });
+      deviceInfoEl.innerHTML = `<pre>${JSON.stringify(device, null, 2)}</pre>`;
+      status.textContent = 'Paired — you can close this page.';
+    });
+
+    socket.on('disconnect', () => { status.textContent = 'Disconnected.'; });
+  </script>
+</body>
+</html>
